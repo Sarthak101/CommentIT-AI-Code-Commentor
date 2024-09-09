@@ -4,7 +4,8 @@ from tkinter import filedialog, messagebox
 from tkinter import ttk  # Import ttk for the progress bar
 import google.generativeai as genai
 
-genai.configure(api_key="YOUR API KEY HERE")
+# Configure the AI model
+genai.configure(api_key="YOUR_API_KEY")
 
 # Define the model generation configuration
 generation_config = {
@@ -33,8 +34,17 @@ def write_commented_code(filepath, content):
         file.write(content)
 
 # Function to clean the output by removing unwanted Markdown formatting
-def clean_output(output):
-    return output.replace("```python", "").replace("```", "").strip()
+def clean_output(output, language):
+    if language == "Python":
+        return output.replace("```python", "").replace("```", "").strip()
+    elif language == "Java":
+        # Assuming Java might use similar markdown, adjust if necessary
+        return output.replace("```java", "").replace("```", "").strip()
+    elif language == "C/C++":
+        # Assuming C/C++ might use similar markdown, adjust if necessary
+        return output.replace("```c", "").replace("```cpp", "").replace("```", "").strip()
+    else:
+        return output.strip()
 
 # Function to handle the AI request and file operations
 def comment_code():
@@ -42,7 +52,7 @@ def comment_code():
     try:
         selected_files = [file for file, var in file_vars.items() if var['var'].get()]
         if not selected_files:
-            messagebox.showwarning("No files selected", "Please select at least one Python file to proceed.")
+            messagebox.showwarning("No files selected", "Please select at least one file to proceed.")
             return
 
         # Reset progress bar
@@ -54,20 +64,26 @@ def comment_code():
             # Read the code from the selected file
             code_to_comment = read_code_file(file_path)
 
+            # Determine language based on file extension
+            file_extension = os.path.splitext(file_path)[1]
+            if file_extension == '.py':
+                language = "Python"
+            elif file_extension == '.java':
+                language = "Java"
+            elif file_extension in ['.c', '.cpp']:
+                language = "C/C++"
+            else:
+                language = "Unknown"
+
+            # Create the prompt based on the language
+            prompt = f"Add comments to the following {language} code. Please provide only the commented code, without any additional text or formatting:\n" + code_to_comment
+
             # Start a chat session with the AI model
             chat_session = model.start_chat(
                 history=[
                     {
                         "role": "user",
-                        "parts": [
-                            "Please provide comments for the following code without Markdown formatting:\n" + code_to_comment,
-                        ],
-                    },
-                    {
-                        "role": "model",
-                        "parts": [
-                            "Sure, I will add comments to your code without any Markdown formatting. Please wait...",
-                        ],
+                        "parts": [prompt],
                     },
                 ]
             )
@@ -76,7 +92,7 @@ def comment_code():
             response = chat_session.send_message(code_to_comment)
 
             # Extract the AI-generated commented code from the response
-            commented_code = clean_output(response.text)
+            commented_code = clean_output(response.text, language)
 
             # Get the output filename from the entry fields
             output_filename = output_name_vars[file_path].get()
@@ -98,24 +114,27 @@ def comment_code():
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {e}")
 
-# Function to open directory dialog and list all Python files in the selected folder
+# Function to open directory dialog and list all supported files in the selected folder
 def browse_folder():
-    directory = filedialog.askdirectory(title="Select Folder Containing Python Files")
+    directory = filedialog.askdirectory(title="Select Folder Containing Code Files")
     if directory:
         input_folder_path.set(directory)
-        list_python_files(directory)
+        list_files(directory)
 
-# Function to list all Python files in the selected folder with checkboxes
-def list_python_files(folder):
+# Function to list all supported files in the selected folder with checkboxes
+def list_files(folder):
+    # Define the extensions you want to support
+    supported_extensions = ('.py', '.java', '.c', '.cpp')
+
     for widget in frame_files_content.winfo_children():
         widget.destroy()
 
-    python_files = [f for f in os.listdir(folder) if f.endswith('.py')]
-    if not python_files:
-        messagebox.showinfo("No Python Files", "No Python files found in the selected folder.")
+    files = [f for f in os.listdir(folder) if f.endswith(supported_extensions)]
+    if not files:
+        messagebox.showinfo("No Files", "No supported files found in the selected folder.")
         return
 
-    for file in python_files:
+    for file in files:
         file_path = os.path.join(folder, file)
         var = tk.BooleanVar()
 
@@ -157,7 +176,7 @@ def update_action_choice():
 
 # Initialize the Tkinter window
 root = tk.Tk()
-root.title("Python Code Commenter")
+root.title("Code Commenter")
 
 # Variables to hold the selected folder path, file variables, output directory, and action choice
 input_folder_path = tk.StringVar()
@@ -201,8 +220,8 @@ button_comment = tk.Button(frame_actions, text="Comment to New File", command=co
 button_comment.pack(pady=5)
 
 # Progress bar widget
-progress_bar = ttk.Progressbar(root, orient="horizontal", mode="determinate", length=300)
-progress_bar.pack(pady=10)
+progress_bar = ttk.Progressbar(frame_actions, orient="horizontal", mode="determinate")
+progress_bar.pack(fill="x", pady=5)
 
 # Start the Tkinter event loop
 root.mainloop()
