@@ -1,4 +1,4 @@
-# Python Code Commenter 🐍💬
+# Python Code Commenter 🐍💬🎀
 
 A Python GUI application that uses AI to automatically add comments to your code files. Supports Python, Java, C, and C++!
 
