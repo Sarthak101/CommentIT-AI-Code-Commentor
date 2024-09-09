@@ -24,3 +24,13 @@ Install the required Python packages:
 ```bash
 pip install google-generativeai
 pip install pyinstaller
+
+
+🚀 Usage
+Select Folder 📂: Click "Browse Folder" to choose the directory with your code files.
+Select Output Directory 📁: Click "Browse Directory" to choose where to save the commented files.
+Choose Action 🔧:
+Save to New Files: Enter names for new output files.
+Replace Existing Files: Overwrite the existing files with the commented code.
+Comment Code 🖋️: Click "Comment to New File" to start the process.
+Monitor Progress 📊: View progress in the text field and see a final popup when done.
