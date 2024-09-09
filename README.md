@@ -1,3 +1,5 @@
+markdown
+Copy code
 # Python Code Commenter 🐍💬
 
 A Python GUI application that uses AI to automatically add comments to your code files. Supports Python, Java, C, and C++!
@@ -24,7 +26,29 @@ Install the required Python packages:
 ```bash
 pip install google-generativeai
 pip install pyinstaller
-```
+🚀 Usage
+Select Folder 📂
+Click "Browse Folder" to choose the directory with your code files.
 
+Select Output Directory 📁
+Click "Browse Directory" to choose where to save the commented files.
 
+Choose Action 🔧
+Save to New Files: Enter names for new output files.
+Replace Existing Files: Overwrite the existing files with the commented code.
+Comment Code 🖋️
+Click "Comment to New File" to start the process.
 
+Monitor Progress 📊
+View progress in the text field and see a final popup when done.
+
+👤 Creator
+This project was created by Sarthak.
+
+📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+css
+Copy code
+
+Feel free to adjust any details as needed!
