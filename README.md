@@ -17,6 +17,8 @@ A Python GUI application that uses AI to automatically add comments to your code
 - **Python 3.6+**: Make sure you have Python installed.
 - **API Key**: You'll need an API key for the AI service. Replace the placeholder in the script with your key.
 
+##A Software By Sarthak Behl
+
 ### Dependencies
 
 Install the required Python packages:
@@ -26,4 +28,3 @@ pip install google-generativeai
 pip install pyinstaller
 
 
-##A Software By Sarthak Behl
