@@ -24,3 +24,6 @@ Install the required Python packages:
 ```bash
 pip install google-generativeai
 pip install pyinstaller
+
+
+##A Software By Sarthak Behl
