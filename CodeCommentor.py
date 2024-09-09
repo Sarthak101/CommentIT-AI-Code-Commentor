@@ -1,10 +1,9 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from tkinter import ttk  # Import ttk for the progress bar
+from tkinter import ttk
 import google.generativeai as genai
 
-# Configure the AI model
 genai.configure(api_key="YOUR_API_KEY")
 
 # Define the model generation configuration
@@ -38,13 +37,10 @@ def clean_output(output, language):
     if language == "Python":
         return output.replace("```python", "").replace("```", "").strip()
     elif language == "Java":
-        # Assuming Java might use similar markdown, adjust if necessary
         return output.replace("```java", "").replace("```", "").strip()
-    elif language == "C/C++":
-        # Assuming C/C++ might use similar markdown, adjust if necessary
+    elif language in ["C/C++"]:
         return output.replace("```c", "").replace("```cpp", "").replace("```", "").strip()
-    else:
-        return output.strip()
+    return output.strip()
 
 # Function to handle the AI request and file operations
 def comment_code():
@@ -101,35 +97,39 @@ def comment_code():
             if replace_original:
                 # Replace the original file with commented code
                 write_commented_code(file_path, commented_code)
-                messagebox.showinfo("Success", f"Original file {file_path} has been replaced with the commented code.")
+                status_text = f"Original file {file_path} has been replaced with the commented code."
             else:
                 # Write to the new file
                 write_commented_code(output_filepath, commented_code)
-                messagebox.showinfo("Success", f"Commented code has been saved to {output_filepath}")
+                status_text = f"Commented code has been saved to {output_filepath}"
+
+            # Update the status text field
+            status_text_field.insert(tk.END, status_text + "\n")
+            status_text_field.yview(tk.END)  # Scroll to the end of the text field
 
             # Update the progress bar after each file is processed
             progress_bar["value"] += 1
             root.update_idletasks()  # Update the GUI to reflect the progress
 
+        # Show completion message after all files are processed
+        messagebox.showinfo("Process Complete", "All files have been processed successfully.")
+
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {e}")
 
-# Function to open directory dialog and list all supported files in the selected folder
+# Function to open directory dialog and list all Python files in the selected folder
 def browse_folder():
-    directory = filedialog.askdirectory(title="Select Folder Containing Code Files")
+    directory = filedialog.askdirectory(title="Select Folder Containing Files")
     if directory:
         input_folder_path.set(directory)
         list_files(directory)
 
-# Function to list all supported files in the selected folder with checkboxes
+# Function to list all files in the selected folder with checkboxes
 def list_files(folder):
-    # Define the extensions you want to support
-    supported_extensions = ('.py', '.java', '.c', '.cpp')
-
     for widget in frame_files_content.winfo_children():
         widget.destroy()
 
-    files = [f for f in os.listdir(folder) if f.endswith(supported_extensions)]
+    files = [f for f in os.listdir(folder) if f.endswith(('.py', '.java', '.c', '.cpp'))]
     if not files:
         messagebox.showinfo("No Files", "No supported files found in the selected folder.")
         return
@@ -215,13 +215,16 @@ tk.Button(frame_output, text="Browse Directory", command=browse_directory).pack(
 tk.Radiobutton(frame_actions, text="Save to New Files", variable=action_choice, value="New", command=update_action_choice).pack(anchor="w")
 tk.Radiobutton(frame_actions, text="Replace Existing Files", variable=action_choice, value="Replace", command=update_action_choice).pack(anchor="w")
 
-# Single button for commenting action
-button_comment = tk.Button(frame_actions, text="Comment to New File", command=comment_code, width=30)
-button_comment.pack(pady=5)
+# Button to start commenting code
+button_comment = tk.Button(frame_actions, text="Comment Code", command=comment_code)
+button_comment.pack(pady=10)
 
-# Progress bar widget
-progress_bar = ttk.Progressbar(frame_actions, orient="horizontal", mode="determinate")
-progress_bar.pack(fill="x", pady=5)
+# Progress bar for showing progress
+progress_bar = ttk.Progressbar(root, orient="horizontal", length=400, mode="determinate")
+progress_bar.pack(padx=10, pady=10, fill="x")
 
-# Start the Tkinter event loop
+# Text field to show status updates with initial size and dynamic expansion
+status_text_field = tk.Text(root, height=5, width=80)
+status_text_field.pack(padx=10, pady=10, fill="both", expand=True)
+
 root.mainloop()
